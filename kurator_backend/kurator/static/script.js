@@ -183,7 +183,7 @@ async function loadDataPoints() {
         select.innerHTML = '<option value="-1">Select a data point</option>';
         for (var i = 0; i < dataPoints.length; i++) {
             var option = document.createElement("option");
-            option.innerHTML = (i+1) + " - " + dataPoints[i]["user_email"];
+            option.innerHTML = (i + 1) + " - " + dataPoints[i]["user_email"];
             option.value = i;
             select.add(option);
         }
@@ -199,7 +199,7 @@ async function loadDataPoints() {
                 }
             });
         }
-        
+
         if (selectedDataPoint != -1) {
             select.value = selectedDataPoint;
             select.dispatchEvent(new Event('change')); // -- don't dispatch event here
@@ -243,7 +243,7 @@ async function validate_configs() {
     }
 }
 
-$id('validate-btn').addEventListener('click', async function() {
+$id('validate-btn').addEventListener('click', async function () {
     if (await validate_configs()) alert("Config(s) are valid.")
 });
 
@@ -260,7 +260,7 @@ async function submit(edit = false) {
         alert("Please generate a change instruction.");
         return;
     }
-    
+
     var id = null;
     if (edit) {
         id = dataPoints[$id('data-selector').value].id;
@@ -278,12 +278,12 @@ async function submit(edit = false) {
     if (!is_valid) {
         return;
     }
-    
+
     if (!edit) {
         alert("not saving due to debug, but config's valid");
         return;
     }
-        
+
     var response = await fetch('/api/add_data_point', {
         method: 'POST',
         headers: {

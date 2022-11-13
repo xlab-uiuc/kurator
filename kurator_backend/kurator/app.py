@@ -1,4 +1,3 @@
-import json
 from pathlib import Path
 
 from fastapi import FastAPI
@@ -18,6 +17,7 @@ app.templates = Jinja2Templates(directory=app.templates_dir)
 
 kurator.auth.setup(app)
 
+
 @app.get('/')
 async def homepage(request: Request, response_class=HTMLResponse):
     user = request.session.get('user')
@@ -31,4 +31,5 @@ async def homepage(request: Request, response_class=HTMLResponse):
 
 if __name__ == '__main__':
     import uvicorn
-    uvicorn.run("kurator.app:app", host="0.0.0.0", port=8000, log_level="debug", reload=True)
+    uvicorn.run("kurator.app:app", host="0.0.0.0",
+                port=8000, log_level="debug", reload=True)
