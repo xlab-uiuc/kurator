@@ -1,0 +1,45 @@
+.form-control {
+    font-size: 11pt;
+}
+.header {
+    height: 25px;
+}
+.header2 {
+    left: 0;
+    right: 0;
+}
+.header2 div {
+    background-color: #222;
+    color: #ccc;
+    border-bottom: 1px solid #444;
+}
+#diff-editor {
+    position: absolute;
+    top: 50px;
+    bottom: 150px;
+    left: 0;
+    right: 0;
+    /* height: 70%; */
+}
+.footer {
+    position: absolute;
+    bottom: 0;
+    height: 150px;
+    left: 10px;
+    right: 10px;
+}
+#change-instruction {
+    height: 80px;
+    font-family: 'Courier New', Courier, monospace;
+}
+#note {
+    height: 80px;
+    font-family: 'Courier New', Courier, monospace;
+}
+.btn-group {
+    margin: 5px auto;
+}
+.btn-group button {
+    padding: 5px;
+    display: block;
+}

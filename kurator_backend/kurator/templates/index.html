@@ -1,0 +1,102 @@
+<!-- The app has simple UI:
+- There are 3 columns: Existing Config, New Config and Diff for easy visualization of the change.
+- There's one row at the bottom for entering the change instruction. This will be automatically filled by GPT-3.
+- Finally, one submit button to submit the data sample.
+- Users can edit their data points if they want to. 
+-->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <!-- bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-iYQeCzEYFbKjA/T2uDLTpkwGzCiq6soy8tYaI1GyVh/UjpbCx/TYkiZhlZB6+fzT" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.1/dist/js/bootstrap.bundle.min.js" integrity="sha384-u1OknCvxWvY5kfmNBILK2hRnQC3Pr17a+RTT6rIHI7NnikvbZlHgTPOOmMi466C8" crossorigin="anonymous"></script>
+
+    <!-- monaco -->
+    <link rel="stylesheet" data-name="vs/editor/editor.main" href="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/editor/editor.main.min.css">
+    <script>var require = { paths: { 'vs': 'https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs' } };</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/loader.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/editor/editor.main.nls.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/editor/editor.main.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.34.0/min/vs/basic-languages/yaml/yaml.min.js"></script>
+
+    <link href="{{ url_for('static', path='/style.css') }}" rel="stylesheet">
+</head>
+
+<body>
+    <div class="header">
+        <div style="float: left; margin: 0 50px 0 20px">Hello <span id="user">{{ user_first_name }}</span>!</div>
+        <!-- <div style="float: left">
+            Choose starting config:
+            <select id="config-selector">
+                <option value="-1">Loading...</option>
+            </select>
+        </div> -->
+        <div style="float: right">
+            View data point:
+            <select id="data-selector">
+                <option value="-1">Loading...</option>
+            </select>
+        </div>
+        
+    </div>
+    <div class="header2">
+        <div style="float: left; width: 50%; text-align: center;">Original Config</div>
+        <div style="float: left; width: 50%; text-align: center;">Changed Config</div>
+    </div>
+    <div id="diff-editor">
+
+    </div>
+    <div class="footer row">
+        <div class="col">
+            <strong>Change Instruction</strong>
+            <div class="spinner-border spinner-border-sm" role="status" id="spinner" style="display: none">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <div id="change-instruction"></div>
+        </div>
+        <div class="col">
+            <strong>Note</strong>
+            <div id="note"></div>
+        </div>
+        <div style="text-align: center;">
+            <div class="btn-group" role="group">
+                <button id="gpt3-suggest-btn" class="btn btn-secondary">Suggest instruction</button>
+                <button id="gpt3-suggest-conf-btn" class="btn btn-secondary">Suggest new config</button>
+            </div>
+            <div class="btn-group" role="group">
+                <button id="validate-btn" class="btn btn-warning">&nbsp;&nbsp;Validate&nbsp;&nbsp;</button>
+                <button id="edit-btn" class="btn btn-success">&nbsp;&nbsp;Edit&nbsp;&nbsp;</button>
+                <button id="submit-btn" class="btn btn-primary">&nbsp;&nbsp;Submit&nbsp;&nbsp;</button>
+            </div>
+
+            <div class="btn-group" role="group"></div>
+                <button id="del-btn" class="btn btn-danger">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Error Modal -->
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalTitle" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title" id="errorModalTitle">Validation Error</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+            </div>
+            <div class="modal-body" id="errorModalBody">
+            
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save changes</button>
+            </div>
+        </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', path='/script.js') }}"></script>
+</body>
+</html>

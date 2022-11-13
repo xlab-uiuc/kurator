@@ -1,0 +1,14 @@
+fastcore
+Flask
+openai
+pandas
+pandas_stubs
+PyYAML
+tqdm
+fastapi[all]
+mysqlclient
+aiomysql
+authlib
+jinja2
+httpx
+# manifest==0.1a1.dev1
