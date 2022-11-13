@@ -8,5 +8,11 @@ RUN mkdir kurator
 COPY kurator/__init__.py kurator/__init__.py
 RUN ls -l
 RUN pip install -e .
+
+# Install kubeconform
+RUN wget https://github.com/yannh/kubeconform/releases/download/v0.5.0/kubeconform-linux-amd64.tar.gz
+RUN tar -xvzf kubeconform-linux-amd64.tar.gz
+RUN mv kubeconform /usr/local/bin
+
 # COPY . . -- happens in docker-compose.yml
 CMD ["python", "kurator/app.py"]

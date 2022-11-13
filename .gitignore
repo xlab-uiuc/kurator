@@ -128,10 +128,16 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
+data_dumps/
+
 kurator_backend/keys/
-kurator_backend/data_dumps/
+# The following directory is very large and should not be committed to the repository
+kurator_backend/community-operators/
+kurator_backend/crd_schemas/
 
 .vscode/
 data_dumps/
 db/data/
 db/01_data_dump.sql
+
+manifest_cache.db

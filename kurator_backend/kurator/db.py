@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine.base import Engine
 from starlette.config import Config
 
+from kurator.utils import validate_config, CodexModel
+
 config = Config()
 router = APIRouter()
 
@@ -23,6 +25,11 @@ class EditDataPoint(BaseModel):
     created_at: str | None = None
     updated_at: str | None = None
     tags: str = "[]"
+
+
+class ValidateConfigsPayload(BaseModel):
+    before: str
+    after: str
 
 
 def get_db(test_conn: bool = False) -> Engine:
@@ -44,6 +51,9 @@ def get_db(test_conn: bool = False) -> Engine:
     finally:
         if engine:
             engine.dispose()
+
+
+########### CRUD of data points ###########
 
 
 @router.get('/api/get_data_points')
@@ -153,3 +163,23 @@ async def del_data_point(request: Request, data_point_id: int, db: Engine = Depe
                      "id": data_point_id})
 
         return {"success": True}
+
+
+########### Validation ###########
+
+
+@router.post('/api/validate_configs')
+def validate_configs_api(
+    request: Request,
+    payload: ValidateConfigsPayload,
+):
+    if not request.session.get('user'):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+
+    before_error = validate_config(payload.before)
+    after_error = validate_config(payload.after)
+
+    return {
+        "before_error": before_error,
+        "after_error": after_error
+    }

@@ -12,4 +12,5 @@ authlib
 jinja2
 httpx
 sqlalchemy
+manifest-ml
 # manifest==0.1a1.dev1
