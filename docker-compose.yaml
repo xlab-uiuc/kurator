@@ -14,7 +14,7 @@ services:
       - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
 
   mysql-db:
-    image: mysql:8.0
+    build: ./db
     ports:
       - "3306:3306"
     volumes:

@@ -17,7 +17,7 @@ USE `kurator_db`;
 -- - tags: The tags of the data point (json)
 
 CREATE TABLE IF NOT EXISTS edit_data_points (
-    id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    id INTEGER PRIMARY KEY AUTO_INCREMENT NOT NULL,
     username VARCHAR(255) NOT NULL,
     before_edit TEXT NOT NULL,
     human_change_instruction TEXT NOT NULL,

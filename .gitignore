@@ -134,3 +134,4 @@ kurator_backend/data_dumps/
 .vscode/
 data_dumps/
 db/data/
+db/data_dump.sql
