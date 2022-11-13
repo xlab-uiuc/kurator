@@ -8,7 +8,7 @@ A simple tool to collect data for machine learning models that help you write Ku
 2. `cp .env.example .env` and fill in the values.
 3. Run `docker compose up --build` to start the server.
 
-Data dumps are not stored in this repository. Fetch them from {secret location} and store it as `db/data_dump.sql` file. This data will only be loaded if `db/data` is empty. If you're trying to load new data, delete the `db/data` directory and run `docker compose up --build` again.
+Data dumps are not stored in this repository. Fetch them from {secret location} and store it as `db/01_data_dump.sql` file. This data will only be loaded if `db/data` is empty. If you're trying to load new data, delete the `db/data` directory and run `docker compose up --build` again.
 
 <!-- This simple app is for collecting data of the form: **(Existing Config, Change Instruction, New Config)**. Since making users enter this data from scratch is too expensive, this app helps in the following ways:
 

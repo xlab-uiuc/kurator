@@ -11,4 +11,5 @@ aiomysql
 authlib
 jinja2
 httpx
+sqlalchemy
 # manifest==0.1a1.dev1

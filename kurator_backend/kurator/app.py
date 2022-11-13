@@ -1,25 +1,35 @@
 from pathlib import Path
 
+import kurator.auth as auth
+import kurator.db as db
+
 from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.config import Config
+from starlette.middleware.sessions import SessionMiddleware
+from starlette.requests import Request
+from starlette.responses import HTMLResponse, RedirectResponse
 
-import kurator.auth
+config = Config()
 
 app = FastAPI()
+app.add_middleware(SessionMiddleware,
+                   secret_key=config.environ["AUTH_SECRET_KEY"])
+
 app.static_dir = Path(__file__).parent / 'static'
-app.templates_dir = Path(__file__).parent / 'templates'
 app.mount("/static", StaticFiles(directory=app.static_dir), name="static")
 
+app.templates_dir = Path(__file__).parent / 'templates'
 app.templates = Jinja2Templates(directory=app.templates_dir)
 
-kurator.auth.setup(app)
+# Initialize the routes
+app.include_router(auth.router)
+app.include_router(db.router)
 
 
 @app.get('/')
-async def homepage(request: Request, response_class=HTMLResponse):
+async def homepage(request: Request):
     user = request.session.get('user')
     if user:
         return app.templates.TemplateResponse(

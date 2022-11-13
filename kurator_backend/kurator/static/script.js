@@ -183,7 +183,7 @@ async function loadDataPoints() {
         select.innerHTML = '<option value="-1">Select a data point</option>';
         for (var i = 0; i < dataPoints.length; i++) {
             var option = document.createElement("option");
-            option.innerHTML = (i + 1) + " - " + dataPoints[i]["user_email"];
+            option.innerHTML = (i + 1) + " - " + dataPoints[i]["username"];
             option.value = i;
             select.add(option);
         }
@@ -291,7 +291,7 @@ async function submit(edit = false) {
         },
         body: JSON.stringify({
             id: id,
-            user_email: "placeholder@placeholder.com",
+            username: "placeholder@placeholder.com",
             before_edit: originalModel.getValue(),
             after_edit: modifiedModel.getValue(),
             human_change_instruction: changeInstructionEditor.getValue(),
