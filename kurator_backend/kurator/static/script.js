@@ -274,15 +274,15 @@ async function submit(edit = false) {
         }
     }
 
-    const is_valid = await validate_configs();
-    if (!is_valid) {
-        return;
-    }
+    // const is_valid = await validate_configs();
+    // if (!is_valid) {
+    //     return;
+    // }
 
-    if (!edit) {
-        alert("not saving due to debug, but config's valid");
-        return;
-    }
+    // if (!edit) {
+    //     alert("not saving due to debug, but config's valid");
+    //     return;
+    // }
 
     var response = await fetch('/api/add_data_point', {
         method: 'POST',
@@ -323,14 +323,8 @@ async function deleteDataPoint() {
     }
 
     var id = dataPoints[$id('data-selector').value].id;
-    var response = await fetch('/api/del_data_point', {
+    var response = await fetch('/api/del_data_point?data_point_id=' + id, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            id: id,
-        })
     })
     if (response.ok) {
         alert("Deleted!");
