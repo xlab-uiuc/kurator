@@ -200,10 +200,13 @@ async function loadDataPoints() {
             });
         }
 
-        if (selectedDataPoint != -1) {
-            select.value = selectedDataPoint;
-            select.dispatchEvent(new Event('change')); // -- don't dispatch event here
+        if (selectedDataPoint == -1) {
+            selectedDataPoint = Math.min("0", dataPoints.length - 1);
         }
+
+        select.value = selectedDataPoint;
+        select.dispatchEvent(new Event('change'));
+
     } else {
         alert("Error loading data points: " + response.status);
     }

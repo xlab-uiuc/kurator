@@ -4,6 +4,8 @@ from starlette.requests import Request
 from starlette.responses import RedirectResponse
 from authlib.integrations.starlette_client import OAuth, OAuthError
 
+from kurator.routes.utils import templates
+
 config = Config()
 oauth = OAuth(config)
 
@@ -22,7 +24,7 @@ oauth.register(
 async def login(request: Request):
     if request.session.get('user'):
         return RedirectResponse(url='/')
-    return router.templates.TemplateResponse("login.html", {"request": request})
+    return templates.TemplateResponse("login.html", {"request": request})
 
 @router.get('/login/google')
 async def google_login(request: Request):

@@ -31,7 +31,11 @@
 
 <body>
     <div class="header">
-        <div style="float: left; margin: 0 50px 0 20px">Hello <span id="user">{{ user_first_name }}</span>!</div>
+        <div style="float: left; margin: 0 50px 0 20px">
+            Hello <span id="user">{{ user_first_name }}</span>!
+            <a href="/logout"
+                style="padding: 0 10px; background-color: #dc3545; color: white; text-decoration: none;">Logout</a>
+        </div>
         <!-- <div style="float: left">
             Choose starting config:
             <select id="config-selector">
