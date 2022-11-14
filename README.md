@@ -18,6 +18,14 @@ The main page lets you enter such data. The left panel shows the "existing confi
 
 You can browse all data points by selecting the dropdown at top right.
 
+### Validation
+
+While inserting/editing some data point, the data gets automatically validated. The tool only performs validation wrt the operator Schema. Currently that's limited to single document YAML files. The validation is performed using [kubeconform](https://github.com/yannh/kubeconform). If the data you're entering is invalid, you'll not be able to save it. You can also explicitly validate the data by clicking the "Validate" button, but that's not necessary.
+
+### Deleting
+
+You can delete a data point by clicking the "Delete" button. You'll be asked to confirm the deletion. Data doesn't really get deleted, but marked as deleted. You can still view the data (yet to be implemented), but it won't be shown in the main page.
+
 ## Setup
 
 This is only relevant if you're the admin of this tool.
