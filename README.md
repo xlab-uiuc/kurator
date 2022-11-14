@@ -6,7 +6,7 @@ A simple tool to collect data for machine learning models that help you write Ku
 
 1. Install [Docker](https://docs.docker.com/install/)
 2. `cp .env.example .env` and fill in the values.
-3. Run `unzip community-operators.zip` to unzip the community operators. If you don't run this, the first call to "validate" will take a long time.
+3. Run `unzip -d kurator_backend kurator_backend/community-operators.zip` to unzip the community operators. If you don't run this, the first call to "validate" will take a long time.
 4. Run `docker compose up --build` to start the server.
 
 Data dumps are not stored in this repository. Fetch them from {secret location} and store it as `db/01_data_dump.sql` file. This data will only be loaded if `db/data` is empty. If you're trying to load new data, delete the `db/data` directory and run `docker compose up --build` again.
