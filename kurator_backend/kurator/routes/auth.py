@@ -24,6 +24,8 @@ oauth.register(
 async def login(request: Request):
     if request.session.get('user'):
         return RedirectResponse(url='/')
+    if config.environ["USE_FAKE_AUTH"].lower() in ["true", "1"]:
+        request.session['user'] = {"given_name": "Test", "email": "test@test.com"}
     return templates.TemplateResponse("login.html", {"request": request})
 
 @router.get('/login/google')

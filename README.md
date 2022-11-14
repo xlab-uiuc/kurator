@@ -31,7 +31,7 @@ You can delete a data point by clicking the "Delete" button. You'll be asked to 
 This is only relevant if you're the admin of this tool.
 
 1. Install [Docker](https://docs.docker.com/install/)
-2. `cp .env.example .env` and fill in the values.
+2. `cp .env.example .env` and fill in the values. (no need to fill values for testing mode).
 3. Run `cd kurator_backend; unzip community-operators.zip` to unzip the community operators. If you don't run this, the first call to "validate" will take a long time.
 4. Run `docker compose up --build` to start the server.
 
