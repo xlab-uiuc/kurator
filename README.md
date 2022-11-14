@@ -4,7 +4,7 @@ A simple tool to collect data for machine learning models that help you write Ku
 
 ## Usage
 
-The tool is fairly simple to use. When you go to {url} (or `localhost:8000` if you run it locally), then you'll have an option to login with google:
+The tool is fairly simple to use. When you go to `{url}` (or `localhost:8000` if you run it locally), then you'll have an option to login with Google:
 
 ![Login](./images/Login%20page.png)
 
@@ -35,4 +35,4 @@ This is only relevant if you're the admin of this tool.
 3. Run `cd kurator_backend; unzip community-operators.zip` to unzip the community operators. If you don't run this, the first call to "validate" will take a long time.
 4. Run `docker compose up --build` to start the server.
 
-Data dumps are not stored in this repository. Fetch the latest dump from [secret location](https://github.com/xlab-uiuc/ml4conf/tree/master/data) and store it as `db/01_data_dump.sql` file. This data will only be loaded if `db/data` is empty. If you're trying to load new data, delete the `db/data` directory and run `docker compose up --build` again.
+Data dumps are not stored in this repository. Fetch the latest dump from [our private repo](https://github.com/xlab-uiuc/ml4conf/tree/master/data) and store it as `db/01_data_dump.sql` file. This data will only be loaded if `db/data` is empty. If you're trying to load new data, delete the `db/data` directory and run `docker compose up --build` again.
