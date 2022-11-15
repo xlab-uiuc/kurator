@@ -1,5 +1,29 @@
 version: '3'
 services:
+  traefik:
+    image: "traefik:v2.9"
+    container_name: "traefik"
+    command:
+      #- "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.web.http.redirections.entryPoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entryPoint.scheme=https"
+      - "--entrypoints.web.http.redirections.entrypoint.permanent=true"
+      - "--entrypoints.websecure.address=:443"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=thakkarparth007@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+
   kurator:
     build: ./kurator_backend
     ports:
@@ -21,6 +45,11 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       USE_FAKE_AUTH: ${USE_FAKE_AUTH}
+    labels:
+      - "traefik.enable=${ENABLE_TLS}"
+      - "traefik.http.routers.whoami.rule=Host(`kurator.eastus.cloudapp.azure.com`)"
+      - "traefik.http.routers.whoami.entrypoints=websecure"
+      - "traefik.http.routers.whoami.tls.certresolver=myresolver"
 
   mysql-db:
     build: ./db
