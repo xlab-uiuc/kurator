@@ -107,6 +107,47 @@
         </div>
     </div>
 
+    <div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalTitle"
+        aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="errorModalTitle">Validation Error</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="errorModalBody">
+            
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="submitAnywayModal" tabindex="-1" role="dialog" aria-labelledby="submitAnywayModalTitle"
+    aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="submitAnywayModalTitle">Validation Error</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" id="submitAnywayModalBody">
+        
+            </div>
+            <div class="modal-footer">
+                <button id="btn-submit-anyway" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Submit Anyway</button>
+                <button id="btn-dont-submit" type="button" class="btn btn-primary" data-bs-dismiss="modal">Don't Submit</button>
+            </div>
+        </div>
+    </div>
+</div>
+
     <script src="/static/script.js"></script>
 </body>
 

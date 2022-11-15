@@ -218,7 +218,7 @@ loadDataPoints();
  * Validate config
  *************************************************************************/
 
-async function validate_configs() {
+async function validate_configs(submitFlow=false) {
     var response = await fetch('/api/validate_configs', {
         method: 'POST',
         headers: {
@@ -236,11 +236,28 @@ async function validate_configs() {
             before_error = data.before_error || "Valid";
             after_error = data.after_error || "Valid";
 
-            $id("errorModalBody").innerHTML = "Config(s) are invalid. Error:<br><br><code style='white-space: pre-wrap'><b>Original Config:</b>\n" + before_error + "\n\n<b>Modified Config:</b>\n" + after_error + "</code>";
+            if (!submitFlow) {
+                $id("errorModalBody").innerHTML = "Config(s) are invalid. Error:<br><br><code style='white-space: pre-wrap'><b>Original Config:</b>\n" + before_error + "\n\n<b>Modified Config:</b>\n" + after_error + "</code>";
 
-            var errorModal = new bootstrap.Modal($id('errorModal'));
-            errorModal.show();
-            return false;
+                var errorModal = new bootstrap.Modal($id('errorModal'));
+                errorModal.show();
+
+                return false;
+            } else {
+                $id("submitAnywayModalBody").innerHTML = "Config(s) are invalid. Error:<br><br><code style='white-space: pre-wrap'><b>Original Config:</b>\n" + before_error + "\n\n<b>Modified Config:</b>\n" + after_error + "</code>";
+
+                var errorModal = new bootstrap.Modal($id('submitAnywayModal'));
+                errorModal.show();
+
+                let submit_anyway = false;
+                await new Promise(resolve => {
+                    $id("btn-submit-anyway").addEventListener('click', () => {
+                        submit_anyway = true;
+                        resolve();
+                    }, {once: true});
+                });
+                return submit_anyway;
+            }
         } else if (data.validation_error) {
             $id("errorModalBody").innerHTML = "Unable to validate configurations. The issue has been logged on the server and will be fixed shortly.<br><strong>Please submit your data point anyway.</strong>";
 
@@ -285,10 +302,10 @@ async function submit(edit = false) {
         }
     }
 
-    // const is_valid = await validate_configs();
-    // if (!is_valid) {
-    //     return;
-    // }
+    const is_valid = await validate_configs(submitFlow=true);
+    if (!is_valid) {
+        return;
+    }
 
     // if (!edit) {
     //     alert("not saving due to debug, but config's valid");

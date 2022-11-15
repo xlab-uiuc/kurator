@@ -129,7 +129,7 @@ def unzip_community_operators_if_needed():
 
     subprocess.run(["unzip", "-o", community_operators_zip_path, "-d", ROOT_PATH], check=True)
 
-def validate_single_doc(config_doc: Dict) -> Optional[str]:
+def validate_single_doc(config_doc: Dict, ignore_schema_not_found: bool = False) -> Optional[str]:
     if len(config_doc) == 0:
         # empty config is valid
         return ""
@@ -188,6 +188,8 @@ def validate_single_doc(config_doc: Dict) -> Optional[str]:
         error = validation_result.stdout.decode('utf-8')
         if error.startswith("stdin - "):
             error = error[len("stdin - "):]
+        if "Could not find schema for" in error and ignore_schema_not_found:
+            return None
         return error
     return None
 
