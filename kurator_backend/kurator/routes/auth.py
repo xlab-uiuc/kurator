@@ -36,35 +36,16 @@ oauth.register(
 async def login(request: Request):
     if request.session.get('user'):
         return RedirectResponse(url='/')
-    if config.environ["USE_FAKE_AUTH"].lower() in ["true", "1"]:
-        request.session['user'] = {"given_name": "Test", "email": "test@test.com"}
     return templates.TemplateResponse("login.html", {"request": request})
-
-@router.get('/login/google')
-async def google_login(request: Request):
-    if request.session.get('user'):
-        return RedirectResponse(url='/')
-    redirect_uri = request.base_url.replace(path='/auth/google/callback')._url
-    return await oauth.google.authorize_redirect(request, redirect_uri)
-
-@router.get('/auth/google/callback')
-async def google_auth_cb(request: Request):
-    try:
-        token = await oauth.google.authorize_access_token(request)
-    except OAuthError as error:
-        request.session.clear()
-        return RedirectResponse(url='/login')
-    user = token.get('userinfo')
-    if user:
-        request.session['user'] = dict(user)
-    return RedirectResponse(url='/')
 
 @router.get('/login/github')
 async def github_login(request: Request):
     if request.session.get('user'):
         return RedirectResponse(url='/')
+    if config.environ["USE_FAKE_AUTH"].lower() in ["true", "1"]:
+        request.session['user'] = {"given_name": "Test", "email": "test@test.com"}
+        return RedirectResponse(url='/')
     redirect_uri = request.base_url.replace(path='/auth/github/callback')._url
-    print(redirect_uri)
     return await oauth.github.authorize_redirect(request, redirect_uri)
 
 @router.get('/auth/github/callback')
