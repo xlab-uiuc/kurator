@@ -116,7 +116,7 @@ def get_json_schema_file_name_for_crd(crd_api_version: str, crd_name: str) -> Pa
     crd_api_version = crd_info_row['api_version'].split("/")[1]
     
     crd_schemas_path = ROOT_PATH / "crd_schemas"
-    return crd_schemas_path / f"{crd_operator}/{operator_version}/{crd_kind}_{crd_api_version}.json"
+    return crd_schemas_path / f"{crd_operator}/{operator_version}/{crd_kind.lower()}_{crd_api_version}.json"
 
 
 def unzip_community_operators_if_needed():
