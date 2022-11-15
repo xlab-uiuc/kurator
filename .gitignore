@@ -136,6 +136,7 @@ kurator_backend/keys/
 # The following directory is very large and should not be committed to the repository
 kurator_backend/community-operators/
 kurator_backend/crd_schemas/
+kurator_backend/validation_errors.log
 
 .vscode/
 data_dumps/

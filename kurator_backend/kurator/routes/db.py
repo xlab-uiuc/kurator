@@ -1,4 +1,6 @@
-from typing import List
+import datetime
+import traceback
+from typing import Any, Dict, List
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel
@@ -6,7 +8,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine.base import Engine
 from starlette.config import Config
 
-from kurator.utils import validate_config, CodexModel
+from kurator.utils import validate_config, ROOT_PATH
 
 config = Config()
 router = APIRouter()
@@ -52,6 +54,13 @@ def get_db(test_conn: bool = False) -> Engine:
         if engine:
             engine.dispose()
 
+############ Helper functions ############
+
+def get_current_user(request: Request) -> Dict[str, Any]:
+    user = request.session.get('user')
+    if not user:
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    return user
 
 ########### CRUD of data points ###########
 
@@ -61,11 +70,9 @@ def get_data_points(
     request: Request,
     username: str | None = None,
     include_deleted: bool = False,
-    db: Engine = Depends(get_db), response_model=List[EditDataPoint]
+    db: Engine = Depends(get_db), response_model=List[EditDataPoint],
+    current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    if not request.session.get('user'):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
     # TODO: handle `include_deleted`
     # TODO: handle `username` - should we allow users to see other users' data points?
 
@@ -86,11 +93,13 @@ def get_instructions_from_gpt3(before_edit: str, after_edit: str) -> str:
 
 
 @router.post('/api/add_data_point')
-async def add_data_point(request: Request, data_point: EditDataPoint, db: Engine = Depends(get_db)):
-    if not request.session.get('user'):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    editing_user = request.session.get('user')['email']
+async def add_data_point(
+    request: Request,
+    data_point: EditDataPoint,
+    db: Engine = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    editing_user = current_user['email']
 
     # sanity checks:
     if data_point.after_edit.strip() == data_point.before_edit.strip():
@@ -139,11 +148,13 @@ async def add_data_point(request: Request, data_point: EditDataPoint, db: Engine
 
 
 @router.post('/api/del_data_point')
-async def del_data_point(request: Request, data_point_id: int, db: Engine = Depends(get_db)):
-    if not request.session.get('user'):
-        raise HTTPException(status_code=401, detail="Unauthorized")
-
-    editing_user = request.session.get('user')['email']
+async def del_data_point(
+    request: Request,
+    data_point_id: int,
+    db: Engine = Depends(get_db),
+    current_user: Dict[str, Any] = Depends(get_current_user)
+):
+    editing_user = current_user['email']
 
     # sanity checks:
     if not (str(data_point_id).isdigit() or isinstance(data_point_id, int)) or int(data_point_id) <= 0:
@@ -172,14 +183,42 @@ async def del_data_point(request: Request, data_point_id: int, db: Engine = Depe
 def validate_configs_api(
     request: Request,
     payload: ValidateConfigsPayload,
+    current_user: Dict[str, Any] = Depends(get_current_user)
 ):
-    if not request.session.get('user'):
-        raise HTTPException(status_code=401, detail="Unauthorized")
+    validation_errors = []
 
-    before_error = validate_config(payload.before)
-    after_error = validate_config(payload.after)
+    try:
+        before_error = validate_config(payload.before)
+    except Exception as e:
+        print("Error while validating before", traceback.format_exc())
+        before_error = ""
+        validation_errors.append(("before", traceback.format_exc()))
+
+    try:
+        after_error = validate_config(payload.after)
+    except Exception as e:
+        print("Error while validating after", traceback.format_exc())
+        after_error = ""
+        validation_errors.append(("after", traceback.format_exc()))
+
+    if len(validation_errors):
+        # log the data, user, and error
+        with open(ROOT_PATH / "validation_errors.log", "a") as f:
+            f.write(f"{datetime.datetime.now()}\n")
+            f.write(f"User: {current_user['email']}\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"**Before**:\n{payload.before}\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"**After**:\n{payload.after}\n")
+            f.write("-" * 80 + "\n")
+            f.write(f"Errors:\n")
+            for error in validation_errors:
+                f.write(f"**{error[0]}**:\n{error[1]}\n")
+            f.write("=" * 80 + "\n")
+            f.write("\n")
 
     return {
         "before_error": before_error,
-        "after_error": after_error
+        "after_error": after_error,
+        "validation_error": len(validation_errors) > 0,
     }

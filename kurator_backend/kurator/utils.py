@@ -99,41 +99,67 @@ CodexModel = Model("openai", "code-davinci-002")
 
 ###### Validation ######
 
-def get_crd_info_row(crd_name: str):
-    crd_info_rows = df_crd_info[df_crd_info.crd_name == crd_name].to_dict(orient='records')
+def get_crd_info_row(crd_api_version: str, crd_name: str):
+    crd_info_rows = df_crd_info[
+        (df_crd_info.crd_name == crd_name) &
+        (df_crd_info.api_version == crd_api_version)
+    ].to_dict(orient='records')
     # pick the one with latest version
     crd_info_row = sorted(crd_info_rows, key=lambda x: tuple(map(int, x['version'].split('.'))), reverse=True)[0]
     return crd_info_row
 
-def get_json_schema_file_name_for_crd(crd_name: str) -> Path:
-    crd_info_row = get_crd_info_row(crd_name)
+def get_json_schema_file_name_for_crd(crd_api_version: str, crd_name: str) -> Path:
+    crd_info_row = get_crd_info_row(crd_api_version, crd_name)
     crd_operator = crd_info_row['operator']
     crd_kind = crd_info_row['crd_name']
     operator_version = crd_info_row['version']
-    crd_api_version = crd_info_row['api_version']
+    crd_api_version = crd_info_row['api_version'].split("/")[1]
     
     crd_schemas_path = ROOT_PATH / "crd_schemas"
     return crd_schemas_path / f"{crd_operator}/{operator_version}/{crd_kind}_{crd_api_version}.json"
 
+
+def unzip_community_operators_if_needed():
+    community_operators_path = ROOT_PATH / "community-operators"
+    if community_operators_path.exists():
+        return
+
+    community_operators_zip_path = ROOT_PATH / "community-operators.zip"
+    assert community_operators_zip_path.exists(), "community-operators.zip does not exist. Check if installation was proper."
+
+    subprocess.run(["unzip", "-o", community_operators_zip_path, "-d", ROOT_PATH], check=True)
+
 def validate_single_doc(config_doc: Dict) -> Optional[str]:
+    if len(config_doc) == 0:
+        # empty config is valid
+        return ""
+
     if "kind" not in config_doc:
         return "No `kind` specified"
     crd_kind = config_doc['kind']
+
+    if "apiVersion" not in config_doc:
+        return "No `apiVersion` specified"
+    crd_api_version = config_doc['apiVersion']
     
-    crd_json_path = get_json_schema_file_name_for_crd(crd_kind)
-    if not crd_json_path.exists():
+    assume_inbuilt = False
+    crd_json_path = None
+    try:
+        crd_json_path = get_json_schema_file_name_for_crd(crd_api_version, crd_kind)
+    except Exception as e:
+        assume_inbuilt = True
+    
+    if crd_json_path and not crd_json_path.exists():
         crd_json_path.parent.mkdir(parents=True, exist_ok=True)
         # run openapi2jsonschema to generate the schema
-        crd_info_row = get_crd_info_row(crd_kind)
+        crd_info_row = get_crd_info_row(crd_api_version, crd_kind)
         crd_yaml_path = crd_info_row['crd_path']
         crd_yaml_path = ROOT_PATH / crd_yaml_path
         if not crd_yaml_path.exists():
-            # unzip community-operators.zip
-            community_operators_zip_path = ROOT_PATH / "community-operators.zip"
-            assert community_operators_zip_path.exists(), "community-operators.zip not found. Check if you cloned the repo correctly"
-            subprocess.run(["unzip", "-o", community_operators_zip_path, "-d", ROOT_PATH], check=True)
-        assert crd_yaml_path.exists(), f"CRD yaml file not found for {crd_kind}"
-
+            # check if community-operators is already extracted
+            unzip_community_operators_if_needed()
+            assert crd_yaml_path.exists(), f"CRD yaml path {crd_yaml_path} does not exist"
+            
         env = os.environ.copy()
         env["FILENAME_FORMAT"] = "{kind}_{version}"
         result = subprocess.run(
@@ -143,15 +169,18 @@ def validate_single_doc(config_doc: Dict) -> Optional[str]:
         if result.returncode != 0:
             print(result.stderr)
             return "Failed to generate schema for CRD"
-        assert crd_json_path.exists()
+        assert crd_json_path.exists(), f"Schema file not generated: {crd_json_path}"
     
     # run kubeconfirm to validate the config
+    if assume_inbuilt:
+        cache_path = ROOT_PATH/"crd_schemas/inbuilt_crd_cache"
+        cache_path.mkdir(parents=True, exist_ok=True)
+        cmd = ["kubeconform", "-strict", "-cache", str(cache_path)]
+    else:
+        cmd = ["kubeconform", "-strict", "-schema-location", str(crd_json_path)]
+    print(" ".join(cmd))
     validation_result = subprocess.run(
-        [
-            "kubeconform",
-            "-schema-location", str(crd_json_path),
-            "-strict"
-        ],
+        cmd,
         input=yaml.dump(config_doc).encode('utf-8'),
         capture_output=True,
     )
@@ -165,7 +194,11 @@ def validate_single_doc(config_doc: Dict) -> Optional[str]:
 
 def validate_config(config_s: str) -> Optional[str]:
     # validate that the config is valid
-    configs = list(yaml.load_all(config_s, Loader=yaml.SafeLoader))
+    try:
+        configs = list(yaml.load_all(config_s, Loader=yaml.SafeLoader))
+    except Exception as e:
+        return "Invalid YAML?"
+
     for config_doc in configs:
         if config_doc is None:
             continue

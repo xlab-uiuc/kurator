@@ -233,11 +233,19 @@ async function validate_configs() {
         var data = await response.json();
         if (data.before_error || data.after_error) {
             //alert("Config(s) are invalid. Error: " + JSON.stringify(data));
-            $id("errorModalBody").innerHTML = "Config(s) are invalid. Error:<br><code style='white-space: pre-wrap'>" + JSON.stringify(data, null, 2) + "</code>";
+            before_error = data.before_error || "Valid";
+            after_error = data.after_error || "Valid";
+
+            $id("errorModalBody").innerHTML = "Config(s) are invalid. Error:<br><br><code style='white-space: pre-wrap'><b>Original Config:</b>\n" + before_error + "\n\n<b>Modified Config:</b>\n" + after_error + "</code>";
 
             var errorModal = new bootstrap.Modal($id('errorModal'));
             errorModal.show();
             return false;
+        } else if (data.validation_error) {
+            $id("errorModalBody").innerHTML = "Unable to validate configurations. The issue has been logged on the server and will be fixed shortly.<br><strong>Please submit your data point anyway.</strong>";
+
+            var errorModal = new bootstrap.Modal($id('errorModal'));
+            errorModal.show();
         } else {
             return true;
         }
