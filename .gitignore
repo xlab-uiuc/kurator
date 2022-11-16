@@ -137,6 +137,7 @@ kurator_backend/keys/
 kurator_backend/community-operators/
 kurator_backend/crd_schemas/
 kurator_backend/validation_errors.log
+kurator_backend/admin_users.txt
 
 .vscode/
 data_dumps/
