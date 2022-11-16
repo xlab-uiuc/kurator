@@ -63,17 +63,18 @@ def get_current_user(request: Request) -> Dict[str, Any]:
     user = request.session.get('user')
     if not user:
         raise HTTPException(status_code=401, detail="Unauthorized")
+    print("Current user:", user)
     return user
 
 ########### CRUD of data points ###########
 
 
-@router.get('/api/get_data_points')
+@router.get('/api/get_data_points', response_model=List[EditDataPoint])
 def get_data_points(
     request: Request,
     username: str | None = None,
     include_deleted: bool = False,
-    db: Engine = Depends(get_db), response_model=List[EditDataPoint],
+    db: Engine = Depends(get_db),
     current_user: Dict[str, Any] = Depends(get_current_user)
 ):
     # TODO: handle `include_deleted`
@@ -87,6 +88,10 @@ def get_data_points(
             data_points = conn.execute(text(
                 "SELECT * FROM edit_data_points WHERE Deleted = False AND username = :username"), {"username": username}).fetchall()
 
+    data_points = [dict(d.items()) for d in data_points]
+    for d in data_points:
+        d['created_at'] = d['created_at'].isoformat()
+        d['updated_at'] = d['updated_at'].isoformat()
     return data_points
 
 

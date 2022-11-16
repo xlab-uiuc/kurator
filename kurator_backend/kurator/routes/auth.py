@@ -55,8 +55,10 @@ async def github_auth_cb(request: Request):
         response = await client.get('https://api.github.com/user', headers={
             "Authorization": "Bearer " + access_token,
         })
-        user = response.json()
-        user = {"given_name": user["name"], "email": user["email"]}
+        user_ = response.json()
+        print(user_)
+        user = {"given_name": user_["name"], "email": user_["email"] or user_["login"]}
+        print(user)
 
     if user:
         request.session['user'] = dict(user)
