@@ -13,6 +13,9 @@ from kurator.utils import validate_config, ROOT_PATH
 config = Config()
 router = APIRouter()
 
+# Reading from file instead of env so that we can quickly restart the webserver alone, without having to restart the whole docker-compose stack
+# Auto-reload takes care of this.
+admin_users = open(ROOT_PATH / 'admin_users.txt').read().splitlines()
 
 class EditDataPoint(BaseModel):
     id: int | None = None
@@ -133,7 +136,7 @@ async def add_data_point(
             if existing_data_point is None:
                 raise HTTPException(
                     status_code=400, detail="id does not exist")
-            if existing_data_point['username'] != editing_user:
+            if existing_data_point['username'] != editing_user and editing_user not in admin_users:
                 raise HTTPException(
                     status_code=400, detail="username does not match")
             cols = ["id"] + cols
@@ -166,7 +169,7 @@ async def del_data_point(
             "SELECT * FROM edit_data_points WHERE id = :id"), {"id": data_point_id}).fetchone()
         if existing_data_point is None:
             raise HTTPException(status_code=400, detail="id does not exist")
-        if existing_data_point['username'] != editing_user:
+        if existing_data_point['username'] != editing_user and editing_user not in admin_users:
             raise HTTPException(
                 status_code=400, detail="username does not match")
 
