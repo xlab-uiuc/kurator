@@ -208,7 +208,7 @@ async function loadDataPoints() {
         select.dispatchEvent(new Event('change'));
 
     } else {
-        alert("Error loading data points: " + response.status);
+        alert("Error loading data points: " + response.status + " " + response.text());
     }
 }
 
@@ -267,7 +267,7 @@ async function validate_configs(submitFlow=false) {
             return true;
         }
     } else {
-        alert("Error while validating configs: " + response.status);
+        alert("Error while validating configs: " + response.status + " " + response.text());
     }
 }
 
@@ -330,7 +330,7 @@ async function submit(edit = false) {
         alert(edit ? "Edited!" : "Submitted!");
         loadDataPoints();
     } else {
-        alert("Error submitting: " + response.status);
+        alert("Error submitting: " + response.status + " " + response.text());
     }
 }
 
@@ -358,7 +358,7 @@ async function deleteDataPoint() {
         alert("Deleted!");
         loadDataPoints();
     } else {
-        alert("Error deleting: " + response.status);
+        alert("Error deleting: " + response.status + " " + response.text());
     }
 }
 
