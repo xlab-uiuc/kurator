@@ -5,6 +5,7 @@ from starlette.middleware.sessions import SessionMiddleware
 
 import kurator.routes.auth as auth
 import kurator.routes.db as db
+import kurator.routes.gpt3 as gpt3
 import kurator.routes.home as home
 import kurator.routes.utils as rutils
 
@@ -19,6 +20,7 @@ app.mount("/static", StaticFiles(directory=rutils.static_dir), name="static")
 # Initialize the routes
 app.include_router(auth.router)
 app.include_router(db.router)
+app.include_router(gpt3.router)
 app.include_router(home.router)
 
 

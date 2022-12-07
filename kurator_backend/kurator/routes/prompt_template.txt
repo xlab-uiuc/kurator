@@ -1,0 +1,88 @@
+# Example 1
+Consider the following git diff:
+
+```
+  apiVersion: rabbitmq.com/v1beta1
+  kind: RabbitmqCluster
+  metadata:
+    name: test-cluster
+    namespace: rabbitmq-system
+  spec:
+-   affinity:
+-     podAntiAffinity:
+-       requiredDuringSchedulingIgnoredDuringExecution:
+-       - labelSelector:
+-           matchExpressions:
+-             - key: app.kubernetes.io/name
+-               operator: In
+-               values:
+-               - test-cluster
+-         topologyKey: kubernetes.io/hostname
+-     podAffinity:
+-       requiredDuringSchedulingIgnoredDuringExecution: null
+    image: null
+    imagePullSecrets: null
++   persistence:
++     storage: "50Gi"
+    rabbitmq:
+      additionalConfig: |
+        cluster_partition_handling = pause_minority
+        vm_memory_high_watermark_paging_ratio = 0.99
+        disk_free_limit.relative = 1.0
+        collect_statistics_interval = 10000
+-   replicas: 2
++   replicas: 3
+    resources:
+      requests:
+        cpu: 1
+        memory: 4Gi
+      limits:
+        cpu: 1
+        memory: 4Gi
+    secretBackend: null
+    service:
+      type: ClusterIP
+    skipPostDeploySteps: false
+    terminationGracePeriodSeconds: 1024
+    tls:
+      caSecretName: null
+      disableNonTLSListeners: false
+      secretName: null
+    tolerations: null
+```
+
+Format note: The lines beginning with `-` have been deleted, and the lines beginning with `+` have been added. Other lines were not changed.
+
+Here's an English description of the changes being made in this diff:
+
+```
+- The Anti-affinity constraint is now removed from the config.
+- The cluster is now configured to use 50Gi of persistence storage
+- The number of replicas is being increased from 2 to 3
+
+No other changes have been made.
+```
+
+In imperative form:
+
+```
+- Remove the Anti-affinity constraint from the config.
+- Configure the cluster to use 50Gi of persistence storage
+- Increase the number of replicas from 2 to 3
+```
+<<END>>
+
+----
+
+# Example 2
+
+Consider the following git diff:
+```
+$diff_goes_here
+```
+
+Format note: The lines beginning with `-` have been deleted, and the lines beginning with `+` have been added. Other lines were not changed.
+
+Here's an English description of the changes being made in this diff:
+
+```
