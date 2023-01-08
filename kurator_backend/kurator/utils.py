@@ -40,7 +40,7 @@ class Model():
 
         supported_providers = ["openai"]
         assert model_provider in supported_providers, f"model_provider must be one of {supported_providers}"
-        
+
         args = dict(
             client_name = model_provider,
         )
@@ -61,7 +61,7 @@ class Model():
 
         self.M = Manifest(**args)
         self.rate_limit = 150000
-    
+
     @delegates(Manifest.run)
     def query(self, prompt: str, debug: bool=False, **kwargs) -> List[str]:
         if "n" in kwargs and "top_k_return" not in kwargs and self.model_provider == "openai":
@@ -92,7 +92,7 @@ class Model():
                 tries_left -= 1
                 n = max(n // 2, 1)
                 continue
-        
+
         return results
 
 CodexModel = Model("openai", "code-davinci-002")
@@ -114,7 +114,7 @@ def get_json_schema_file_name_for_crd(crd_api_version: str, crd_name: str) -> Pa
     crd_kind = crd_info_row['crd_name']
     operator_version = crd_info_row['version']
     crd_api_version = crd_info_row['api_version'].split("/")[1]
-    
+
     crd_schemas_path = ROOT_PATH / "crd_schemas"
     return crd_schemas_path / f"{crd_operator}/{operator_version}/{crd_kind.lower()}_{crd_api_version}.json"
 
@@ -129,7 +129,9 @@ def unzip_community_operators_if_needed():
 
     subprocess.run(["unzip", "-o", community_operators_zip_path, "-d", ROOT_PATH], check=True)
 
-def validate_single_doc(config_doc: Dict, ignore_schema_not_found: bool = False) -> Optional[str]:
+def validate_single_doc(
+    config_doc: dict, ignore_schema_not_found: bool = False, k8s_version: str = "master"
+) -> Optional[str]:
     if len(config_doc) == 0:
         # empty config is valid
         return ""
@@ -141,14 +143,14 @@ def validate_single_doc(config_doc: Dict, ignore_schema_not_found: bool = False)
     if "apiVersion" not in config_doc:
         return "No `apiVersion` specified"
     crd_api_version = config_doc['apiVersion']
-    
+
     assume_inbuilt = False
     crd_json_path = None
     try:
         crd_json_path = get_json_schema_file_name_for_crd(crd_api_version, crd_kind)
     except Exception as e:
         assume_inbuilt = True
-    
+
     if crd_json_path and not crd_json_path.exists():
         crd_json_path.parent.mkdir(parents=True, exist_ok=True)
         # run openapi2jsonschema to generate the schema
@@ -159,7 +161,7 @@ def validate_single_doc(config_doc: Dict, ignore_schema_not_found: bool = False)
             # check if community-operators is already extracted
             unzip_community_operators_if_needed()
             assert crd_yaml_path.exists(), f"CRD yaml path {crd_yaml_path} does not exist"
-            
+
         env = os.environ.copy()
         env["FILENAME_FORMAT"] = "{kind}_{version}"
         result = subprocess.run(
@@ -170,14 +172,15 @@ def validate_single_doc(config_doc: Dict, ignore_schema_not_found: bool = False)
             print(result.stderr)
             return "Failed to generate schema for CRD"
         assert crd_json_path.exists(), f"Schema file not generated: {crd_json_path}"
-    
+
     # run kubeconfirm to validate the config
     if assume_inbuilt:
         cache_path = ROOT_PATH/"crd_schemas/inbuilt_crd_cache"
         cache_path.mkdir(parents=True, exist_ok=True)
-        cmd = ["kubeconform", "-strict", "-cache", str(cache_path)]
+        cmd = [str((ROOT_PATH/"kubeconform").absolute()), "-strict", "-cache", str(cache_path)]
     else:
-        cmd = ["kubeconform", "-strict", "-schema-location", str(crd_json_path)]
+        cmd = [str((ROOT_PATH/"kubeconform").absolute()), "-strict", "-schema-location", str(crd_json_path)]
+    cmd += ["-kubernetes-version", k8s_version]
     print(" ".join(cmd))
     validation_result = subprocess.run(
         cmd,
@@ -206,7 +209,7 @@ def validate_config(config_s: str) -> Optional[str]:
             continue
         error = validate_single_doc(config_doc)
         if error is not None:
-            return error    
+            return error
     return None
 
 ###### Misc ######
