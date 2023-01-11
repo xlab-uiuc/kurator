@@ -105,7 +105,10 @@ def get_crd_info_row(crd_api_version: str, crd_name: str):
         (df_crd_info.api_version == crd_api_version)
     ].to_dict(orient='records')
     # pick the one with latest version
-    crd_info_row = sorted(crd_info_rows, key=lambda x: tuple(map(int, x['version'].split('.'))), reverse=True)[0]
+    def key_fn(row):
+        v = row['version'].split('-')[0]
+        return tuple(map(int, v.split('.')))
+    crd_info_row = sorted(crd_info_rows, key=key_fn, reverse=True)[0]
     return crd_info_row
 
 def get_json_schema_file_name_for_crd(crd_api_version: str, crd_name: str) -> Path:
@@ -181,7 +184,7 @@ def validate_single_doc(
     else:
         cmd = [str((ROOT_PATH/"kubeconform").absolute()), "-strict", "-schema-location", str(crd_json_path)]
     cmd += ["-kubernetes-version", k8s_version]
-    print(" ".join(cmd))
+    # print(" ".join(cmd))
     validation_result = subprocess.run(
         cmd,
         input=yaml.dump(config_doc).encode('utf-8'),
@@ -189,6 +192,7 @@ def validate_single_doc(
     )
     if validation_result.returncode != 0:
         error = validation_result.stdout.decode('utf-8')
+        print(f"Command `{' '.join(cmd)}` failed with error: {error}")
         if error.startswith("stdin - "):
             error = error[len("stdin - "):]
         if "Could not find schema for" in error and ignore_schema_not_found:
