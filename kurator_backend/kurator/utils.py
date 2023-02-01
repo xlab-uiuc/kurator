@@ -181,6 +181,9 @@ def validate_single_doc(
         cache_path = ROOT_PATH/"crd_schemas/inbuilt_crd_cache"
         cache_path.mkdir(parents=True, exist_ok=True)
         cmd = [str((ROOT_PATH/"kubeconform").absolute()), "-strict", "-cache", str(cache_path)]
+        # https://github.com/yannh/kubeconform/issues/100#issuecomment-1096832969
+        cmd += ["-schema-location", "default"]
+        cmd += ["-schema-location", "https://raw.githubusercontent.com/yannh/kubernetes-json-schema/master/{{ .NormalizedKubernetesVersion }}/{{ .ResourceKind }}{{ .KindSuffix }}.json"]
     else:
         cmd = [str((ROOT_PATH/"kubeconform").absolute()), "-strict", "-schema-location", str(crd_json_path)]
     cmd += ["-kubernetes-version", k8s_version]
