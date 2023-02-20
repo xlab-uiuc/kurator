@@ -59,11 +59,16 @@ class Model():
             args["max_tokens"] = max_tokens
             args["stop_sequence"] = stop
 
-        self.M = Manifest(**args)
+        self.margs = args
+        #self.M = Manifest(**args)
+        self.M = None
         self.rate_limit = 150000
 
     @delegates(Manifest.run)
     def query(self, prompt: str, debug: bool=False, **kwargs) -> List[str]:
+        if not self.M:
+            self.M = Manifest(**self.margs)
+
         if "n" in kwargs and "top_k_return" not in kwargs and self.model_provider == "openai":
             kwargs["top_k_return"] = kwargs["n"]
 
